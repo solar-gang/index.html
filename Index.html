@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Commission Wheel</title>
+
+  <style>
+    :root{
+      --accent:#16a34a;
+      --accent2:#22c55e;
+      --bg:#0b1220;
+      --card:#0f1a2e;
+      --ink:#eaf2ff;
+      --muted:#a9b7d0;
+      --border:rgba(255,255,255,.08);
+      --glow: 0 0 32px rgba(34,197,94,.25);
+      --radius:18px;
+
+      --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      --base:18px;
+      --h1:22px;
+      --big:34px;
+      --inputPad:18px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:var(--font);
+      font-size:var(--base);
+      color:var(--ink);
+      background:
+        radial-gradient(900px 500px at 20% -10%, rgba(34,197,94,.18), transparent 55%),
+        radial-gradient(700px 420px at 90% 10%, rgba(22,163,74,.12), transparent 60%),
+        linear-gradient(180deg, #070d18, var(--bg));
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .wrap{ max-width: 720px; margin: 0 auto; padding: 14px; }
+
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap: 10px;
+      margin-bottom: 12px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: .9em;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--accent2));
+      box-shadow: 0 0 18px rgba(34,197,94,.55);
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+    }
+
+    h1{ margin: 0; font-size: var(--h1); letter-spacing:.3px; }
+    .sub{
+      margin-top:6px; color: var(--muted);
+      line-height: 1.25; font-size:.95em;
+    }
+
+    .grid{ display:grid; gap: 12px; margin-top: 14px; }
+
+    label{ display:block; color: #dbe7ff; font-size:.9em; margin-bottom:6px; }
+
+    input, select, button{ font: inherit; }
+
+    input, select{
+      width: 100%;
+      padding: var(--inputPad);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      outline: none;
+      background: rgba(255,255,255,.04);
+      color: var(--ink);
+    }
+    input::placeholder{ color: rgba(233,242,255,.45); }
+    input:focus, select:focus{
+      border-color: rgba(34,197,94,.55);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.16);
+    }
+
+    .seg{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top: 8px;
+    }
+    .seg button{
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--ink);
+      font-weight: 900;
+      letter-spacing: .2px;
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
+    }
+    .seg button.active{
+      border-color: rgba(34,197,94,.65);
+      background:
+        radial-gradient(280px 140px at 20% 0%, rgba(34,197,94,.25), transparent 60%),
+        rgba(34,197,94,.10);
+      box-shadow: var(--glow);
+    }
+
+    .miniRow{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .pillRow{ display:flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .pill{
+      padding:10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      font-size:.9em;
+    }
+
+    .summary{
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background:
+        radial-gradient(480px 220px at 10% 0%, rgba(34,197,94,.18), transparent 62%),
+        rgba(255,255,255,.03);
+    }
+    .summaryTop{
+      display:flex; justify-content:space-between; align-items:flex-end;
+      gap: 12px;
+    }
+    .kicker{ color: var(--muted); font-size:.9em; }
+    .bigMoney{
+      font-size: var(--big);
+      font-weight: 950;
+      letter-spacing: .2px;
+      line-height:1;
+    }
+    .smallMoney{ color: var(--muted); margin-top: 6px; font-size:.95em; line-height:1.2; }
+    .tiny{ color: var(--muted); font-size: .85em; line-height: 1.25; }
+
+    .wheelWrap{
+      margin-top: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      overflow:hidden;
+    }
+    .wheelHeader{
+      padding: 12px 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid var(--border);
+    }
+    .wheelHeader b{ font-size: 1.05em; }
+    .wheelHeader .hint{ color: var(--muted); font-size:.9em; }
+
+    .wheel{
+      display:flex; gap: 12px;
+      overflow-x:auto;
+      scroll-snap-type: x mandatory;
+      padding: 14px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .wheel::-webkit-scrollbar{ height: 0; }
+
+    .cardChip{
+      flex: 0 0 76%;
+      max-width: 520px;
+      scroll-snap-align: center;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background:
+        radial-gradient(480px 260px at 10% 0%, rgba(34,197,94,.16), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      padding: 14px;
+      position:relative;
+      transform: scale(.98);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .cardChip.active{
+      transform: scale(1.00);
+      border-color: rgba(34,197,94,.7);
+      box-shadow: 0 16px 60px rgba(0,0,0,.45), var(--glow);
+    }
+    .chipTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap: 10px;
+    }
+    .chipTop .want{ color: var(--muted); font-size:.9em; }
+    .chipTop .amt{
+      font-size: 30px;
+      font-weight: 950;
+      letter-spacing:.2px;
+      line-height:1.05;
+    }
+    .need{
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.18);
+    }
+    .need .label{ color: var(--muted); font-size:.9em; }
+    .need .value{ margin-top:4px; font-size: 22px; font-weight: 950; }
+    .need .subv{ margin-top: 6px; color: var(--muted); font-size:.88em; line-height:1.2; }
+
+    .footerBtns{ display:flex; gap:10px; margin-top: 12px; }
+    .footerBtns button{
+      flex:1; padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--ink);
+      font-weight: 900;
+      cursor:pointer;
+    }
+    .footerBtns button.primary{
+      background: linear-gradient(180deg, rgba(34,197,94,.35), rgba(34,197,94,.18));
+      border-color: rgba(34,197,94,.7);
+      box-shadow: var(--glow);
+    }
+
+    details{
+      margin-top: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow:hidden;
+      background: rgba(255,255,255,.02);
+    }
+    summary{
+      cursor:pointer;
+      padding: 14px;
+      font-weight: 950;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      list-style:none;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .settingsBody{
+      padding: 12px 14px 14px;
+      border-top: 1px solid var(--border);
+      display:grid;
+      gap: 12px;
+    }
+    .settingsGrid{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    input[type="color"]{ padding: 10px; height: 56px; }
+
+    @media (max-width: 430px){
+      .cardChip{ flex-basis: 84%; }
+      .chipTop .amt{ font-size: 28px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="badge"><span class="dot"></span> Commission Wheel</div>
+      <div class="badge" id="statusPill">Ready</div>
+    </div>
+
+    <div class="card">
+      <h1>Sell for the Commission You Want</h1>
+      <div class="sub">
+        Pick FICO, size, batteries, roof — then scroll the wheel to see what <b>sell price per watt</b> you need to earn that commission.
+        <br><span style="color:var(--muted)">We don’t show PPW as a “result.” We only show the target needed on the wheel.</span>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Credit option</label>
+          <div class="seg" role="group" aria-label="Credit option">
+            <button id="goodBtn" class="active" type="button">Good FICO</button>
+            <button id="lowBtn" type="button">Low FICO (+$0.30/W cost)</button>
+          </div>
+        </div>
+
+        <div class="miniRow">
+          <div>
+            <label for="kw">System size (kW)</label>
+            <input id="kw" inputmode="decimal" placeholder="e.g. 7.2" />
+          </div>
+          <div>
+            <label for="battery">Battery</label>
+            <select id="battery">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="miniRow">
+          <div>
+            <label for="bqty">Battery quantity</label>
+            <select id="bqty" disabled>
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          <div>
+            <label for="cap">PPW cap (max)</label>
+            <select id="cap">
+              <option value="11" selected>$11.00/W</option>
+              <option value="10">$10.00/W</option>
+              <option value="9">$9.00/W</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- NEW ROOF OPTION -->
+        <div class="miniRow">
+          <div>
+            <label for="roof">New roof?</label>
+            <select id="roof">
+              <option value="no" selected>No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+          <div>
+            <label for="roofSq">Roof squares</label>
+            <input id="roofSq" inputmode="decimal" placeholder="e.g. 24" disabled />
+          </div>
+        </div>
+      </div>
+
+      <div class="pillRow">
+        <div class="pill" id="baseCostPill">Cost basis: $3.00/W</div>
+        <div class="pill" id="batteryCostPill">Battery cost added: $0</div>
+        <div class="pill" id="roofCostPill">Roof cost added: $0</div>
+        <div class="pill" id="minPpwPill">Minimum PPW (break-even): —</div>
+      </div>
+
+      <div class="summary" id="summary">
+        <div class="summaryTop">
+          <div>
+            <div class="kicker">Estimated total project cost</div>
+            <div class="bigMoney" id="projCost">$0</div>
+            <div class="smallMoney" id="projCostSub">Enter system size to build the wheel.</div>
+          </div>
+          <div style="text-align:right">
+            <div class="kicker">Commission rate</div>
+            <div style="font-weight:950;font-size:22px" id="commRate">100%</div>
+            <div class="tiny">Adjust in Settings if needed.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wheelWrap">
+        <div class="wheelHeader">
+          <div>
+            <b>Commission Wheel</b>
+            <div class="hint">Scroll → pick your commission goal</div>
+          </div>
+          <div class="hint" id="wheelHint">Set kW to activate</div>
+        </div>
+
+        <div class="wheel" id="wheel"></div>
+      </div>
+
+      <div class="footerBtns">
+        <button id="copyBtn" class="primary" type="button">Copy Targets</button>
+        <button id="resetBtn" type="button">Reset</button>
+      </div>
+
+      <details>
+        <summary>
+          Settings (color / font / commission)
+          <span style="opacity:.65;">▾</span>
+        </summary>
+
+        <div class="settingsBody">
+          <div class="settingsGrid">
+            <div>
+              <label for="accent">Accent color</label>
+              <input id="accent" type="color" value="#16a34a" />
+            </div>
+            <div>
+              <label for="fontSize">Font size</label>
+              <select id="fontSize">
+                <option value="16">Normal</option>
+                <option value="18" selected>Large</option>
+                <option value="20">Extra Large</option>
+                <option value="22">Huge</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settingsGrid">
+            <div>
+              <label for="commissionPct">Commission rate (%)</label>
+              <input id="commissionPct" inputmode="decimal" placeholder="e.g. 100" />
+              <div class="tiny">If reps earn a % of profit, set it here. Default is 100%.</div>
+            </div>
+            <div>
+              <label for="costBase">Base cost ($/W)</label>
+              <input id="costBase" inputmode="decimal" placeholder="3.00" />
+              <div class="tiny">Low FICO adds +$0.30/W automatically.</div>
+            </div>
+          </div>
+
+          <div class="settingsGrid">
+            <div>
+              <label for="roofRate">Roof $ per square</label>
+              <input id="roofRate" inputmode="decimal" placeholder="10" />
+              <div class="tiny">Default $10 per square.</div>
+            </div>
+            <div>
+              <label for="fontFamily">Font</label>
+              <select id="fontFamily">
+                <option value="system" selected>System</option>
+                <option value="arial">Arial</option>
+                <option value="mono">Mono</option>
+                <option value="georgia">Georgia</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settingsGrid">
+            <div>
+              <label for="rangeMin">Wheel min commission</label>
+              <input id="rangeMin" inputmode="decimal" placeholder="2000" />
+            </div>
+            <div>
+              <label for="rangeMax">Wheel max commission</label>
+              <input id="rangeMax" inputmode="decimal" placeholder="30000" />
+            </div>
+          </div>
+
+          <div class="settingsGrid">
+            <div>
+              <label for="step">Wheel step</label>
+              <input id="step" inputmode="decimal" placeholder="500" />
+            </div>
+            <div>
+              <button id="resetThemeBtn" type="button">Reset settings</button>
+            </div>
+          </div>
+
+          <div class="tiny">
+            Math:
+            <br>Watts = kW × 1000
+            <br>Project cost = (costBasis $/W × watts) + batteryCost + roofCost
+            <br>Sale price = (sellPPW × watts)
+            <br>Profit = sale − projectCost
+            <br>Commission = profit × (commissionRate%)
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <script>
+    // ---------------- Helpers ----------------
+    const $ = (id) => document.getElementById(id);
+
+    function cleanNumber(val){
+      if(val === null || val === undefined) return 0;
+      const cleaned = String(val).replace(/[$, ]/g,'');
+      const n = Number(cleaned);
+      return Number.isFinite(n) ? n : 0;
+    }
+    function money0(n){
+      return n.toLocaleString(undefined,{style:'currency',currency:'USD',maximumFractionDigits:0});
+    }
+    function money2(n){
+      return n.toLocaleString(undefined,{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+    function buzz(ms=10){ if (navigator.vibrate) navigator.vibrate(ms); }
+
+    // Battery rules
+    function batteryCost(qty){
+      qty = Math.max(0, Math.floor(qty));
+      if(qty <= 0) return 0;
+      if(qty === 1) return 14500;
+      return 14500 + 11000 * (qty - 1);
+    }
+
+    // ---------------- State (auto-save) ----------------
+    const KEY = "commission_wheel_v2_roof";
+
+    const state = {
+      fico: "good",
+      kw: "",
+      battery: "no",
+      bqty: 0,
+      cap: 11,
+
+      roof: "no",
+      roofSq: "",
+      roofRate: 10,
+
+      baseCost: 3.00,
+      lowFicoAdder: 0.30,
+      commissionPct: 100,
+
+      rangeMin: 2000,
+      rangeMax: 30000,
+      step: 500,
+
+      accent: "#16a34a",
+      fontSize: 18,
+      fontFamily: "system"
+    };
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(KEY);
+        if(!raw) return;
+        const saved = JSON.parse(raw);
+        if(saved && typeof saved === "object") Object.assign(state, saved);
+      }catch(e){}
+    }
+    function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+    // ---------------- Theme ----------------
+    function applyTheme(){
+      document.documentElement.style.setProperty("--accent", state.accent || "#16a34a");
+      document.documentElement.style.setProperty("--accent2", state.accent || "#22c55e");
+      document.documentElement.style.setProperty("--base", (state.fontSize || 18) + "px");
+      document.documentElement.style.setProperty("--h1", Math.max(20, (state.fontSize||18)+4) + "px");
+      document.documentElement.style.setProperty("--big", Math.max(30, (state.fontSize||18)+16) + "px");
+
+      const familyMap = {
+        system: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
+        arial: 'Arial, sans-serif',
+        mono: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+        georgia: 'Georgia, serif'
+      };
+      document.documentElement.style.setProperty("--font", familyMap[state.fontFamily] || familyMap.system);
+
+      $("accent").value = state.accent;
+      $("fontSize").value = String(state.fontSize);
+      $("fontFamily").value = state.fontFamily;
+    }
+
+    // ---------------- Core math ----------------
+    function watts(){
+      const kw = cleanNumber(state.kw);
+      return kw > 0 ? kw * 1000 : 0;
+    }
+
+    function costBasisPerW(){
+      const base = cleanNumber(state.baseCost);
+      const extra = (state.fico === "low") ? state.lowFicoAdder : 0;
+      return base + extra;
+    }
+
+    function roofCost(){
+      if(state.roof !== "yes") return 0;
+      const sq = Math.max(0, cleanNumber(state.roofSq));
+      const rate = cleanNumber(state.roofRate || 10);
+      return sq * rate;
+    }
+
+    function projectCost(){
+      const w = watts();
+      const bCost = (state.battery === "yes") ? batteryCost(state.bqty) : 0;
+      return (costBasisPerW() * w) + bCost + roofCost();
+    }
+
+    function minPpwBreakEven(){
+      const w = watts();
+      if(w <= 0) return 0;
+      return projectCost() / w;
+    }
+
+    function requiredSellPpwForCommission(targetCommission){
+      const w = watts();
+      if(w <= 0) return Infinity;
+
+      const pct = clamp(cleanNumber(state.commissionPct) / 100, 0, 1.0);
+      if(pct <= 0) return Infinity;
+
+      const requiredProfit = targetCommission / pct;
+      const saleNeeded = projectCost() + requiredProfit;
+      return saleNeeded / w;
+    }
+
+    // ---------------- UI ----------------
+    const wheelEl = $("wheel");
+    let activeIndex = -1;
+
+    function setStatus(text){ $("statusPill").textContent = text; }
+
+    function renderFicoButtons(){
+      $("goodBtn").classList.toggle("active", state.fico === "good");
+      $("lowBtn").classList.toggle("active", state.fico === "low");
+    }
+
+    function syncInputs(){
+      $("kw").value = state.kw;
+      $("battery").value = state.battery;
+      $("bqty").disabled = (state.battery !== "yes");
+      $("bqty").value = String(state.battery === "yes" ? state.bqty : 0);
+      $("cap").value = String(state.cap);
+
+      $("roof").value = state.roof;
+      $("roofSq").disabled = (state.roof !== "yes");
+      $("roofSq").value = (state.roof === "yes") ? String(state.roofSq ?? "") : "";
+
+      $("commissionPct").value = String(state.commissionPct);
+      $("costBase").value = String(state.baseCost);
+      $("roofRate").value = String(state.roofRate);
+
+      $("rangeMin").value = String(state.rangeMin);
+      $("rangeMax").value = String(state.rangeMax);
+      $("step").value = String(state.step);
+    }
+
+    function updatePills(){
+      const cb = costBasisPerW();
+      $("baseCostPill").textContent = `Cost basis: ${money2(cb)}/W`;
+
+      const bCost = (state.battery === "yes") ? batteryCost(state.bqty) : 0;
+      $("batteryCostPill").textContent = `Battery cost added: ${money0(bCost)}`;
+
+      const rCost = roofCost();
+      $("roofCostPill").textContent = `Roof cost added: ${money0(rCost)}`;
+
+      const w = watts();
+      const mp = (w > 0) ? minPpwBreakEven() : 0;
+      $("minPpwPill").textContent = (w > 0)
+        ? `Minimum PPW (break-even): ${money2(mp)}/W`
+        : `Minimum PPW (break-even): —`;
+
+      $("commRate").textContent = `${clamp(cleanNumber(state.commissionPct),0,100)}%`;
+    }
+
+    function updateSummary(){
+      const w = watts();
+      const pc = projectCost();
+
+      $("projCost").textContent = money0(pc);
+
+      if(w <= 0){
+        $("projCostSub").textContent = "Enter system size to build the wheel.";
+        $("wheelHint").textContent = "Set kW to activate";
+        setStatus("Ready");
+        return;
+      }
+
+      const mp = minPpwBreakEven();
+      $("projCostSub").textContent =
+        `Break-even sell price per watt: ${money2(mp)}/W  •  Watts: ${w.toLocaleString()}W`;
+
+      $("wheelHint").textContent = "Scroll the wheel to pick a commission goal";
+      setStatus(state.fico === "low" ? "Low FICO mode" : "Good FICO mode");
+    }
+
+    function buildWheel(){
+      const w = watts();
+      wheelEl.innerHTML = "";
+      activeIndex = -1;
+
+      if(w <= 0) return;
+
+      const minC = Math.max(0, Math.floor(cleanNumber(state.rangeMin)));
+      const maxC = Math.max(minC, Math.floor(cleanNumber(state.rangeMax)));
+      const step = Math.max(100, Math.floor(cleanNumber(state.step)));
+      const cap = cleanNumber(state.cap);
+
+      const targets = [];
+      for(let c = minC; c <= maxC; c += step) targets.push(c);
+
+      targets.forEach((commission, idx) => {
+        const card = document.createElement("div");
+        card.className = "cardChip";
+
+        const req = requiredSellPpwForCommission(commission);
+        const breakeven = minPpwBreakEven();
+        const reqMin = Math.max(req, breakeven);
+
+        let display, sub;
+
+        if(!Number.isFinite(reqMin) || reqMin === Infinity){
+          display = "Set rate > 0%";
+          sub = "Go to Settings → Commission rate (%)";
+        } else if(reqMin > cap){
+          display = "Not possible ≤ cap";
+          sub = `Would require ${money2(reqMin)}/W (cap is ${money2(cap)}/W).`;
+        } else {
+          display = `${money2(reqMin)}/W`;
+          const totalSale = reqMin * w;
+          sub = `Total sale price ≈ ${money0(totalSale)}`;
+        }
+
+        card.innerHTML = `
+          <div class="chipTop">
+            <div>
+              <div class="want">Commission goal</div>
+              <div class="amt">${money0(commission)}</div>
+            </div>
+            <div class="want">Max: ${money2(cap)}/W</div>
+          </div>
+
+          <div class="need">
+            <div class="label">Sell at (required)</div>
+            <div class="value">${display}</div>
+            <div class="subv">${sub}</div>
+          </div>
+        `;
+
+        card.addEventListener("click", () => {
+          card.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"});
+          buzz(8);
+        });
+
+        wheelEl.appendChild(card);
+      });
+
+      requestAnimationFrame(() => setActiveByScroll());
+    }
+
+    function setActiveByScroll(){
+      const cards = [...wheelEl.querySelectorAll(".cardChip")];
+      if(cards.length === 0) return;
+
+      const center = wheelEl.scrollLeft + wheelEl.clientWidth / 2;
+
+      let bestIdx = 0, bestDist = Infinity;
+      cards.forEach((c, i) => {
+        const cCenter = (c.offsetLeft + c.offsetWidth/2);
+        const dist = Math.abs(cCenter - center);
+        if(dist < bestDist){ bestDist = dist; bestIdx = i; }
+      });
+
+      if(bestIdx !== activeIndex){
+        if(activeIndex >= 0) cards[activeIndex].classList.remove("active");
+        cards[bestIdx].classList.add("active");
+        activeIndex = bestIdx;
+        buzz(6);
+      }
+    }
+
+    async function copyTargets(){
+      const w = watts();
+      if(w <= 0){ alert("Enter system size (kW) first."); return; }
+
+      const breakeven = minPpwBreakEven();
+      const cb = costBasisPerW();
+      const bCost = (state.battery === "yes") ? batteryCost(state.bqty) : 0;
+      const rCost = roofCost();
+
+      const cards = [...wheelEl.querySelectorAll(".cardChip")];
+
+      const lines = [];
+      lines.push(`Commission Wheel Targets`);
+      lines.push(`Credit: ${state.fico === "low" ? "Low FICO" : "Good FICO"}`);
+      lines.push(`kW: ${state.kw} • Watts: ${w.toLocaleString()}W`);
+      lines.push(`Cost basis: ${money2(cb)}/W`);
+      lines.push(`Battery qty: ${state.battery === "yes" ? state.bqty : 0} • Battery cost: ${money0(bCost)}`);
+      lines.push(`New roof: ${state.roof === "yes" ? "Yes" : "No"} • Roof squares: ${state.roof === "yes" ? (state.roofSq || 0) : 0} • Roof cost: ${money0(rCost)}`);
+      lines.push(`Project cost: ${money0(projectCost())}`);
+      lines.push(`Break-even: ${money2(breakeven)}/W`);
+      lines.push(`Commission rate: ${clamp(cleanNumber(state.commissionPct),0,100)}%`);
+      lines.push(`---`);
+
+      const take = Math.min(cards.length, 10);
+      for(let i=0; i<take; i++){
+        const goal = cards[i].querySelector(".amt")?.textContent?.trim() || "";
+        const need = cards[i].querySelector(".value")?.textContent?.trim() || "";
+        lines.push(`${goal} → Sell at: ${need}`);
+      }
+
+      try{
+        await navigator.clipboard.writeText(lines.join("\n"));
+        $("copyBtn").textContent = "Copied!";
+        setTimeout(()=> $("copyBtn").textContent = "Copy Targets", 1200);
+        buzz(12);
+      }catch(e){
+        alert("Copy failed. Try taking a screenshot.");
+      }
+    }
+
+    function rebuildAll(){
+      save();
+      renderFicoButtons();
+      syncInputs();
+      applyTheme();
+      updatePills();
+      updateSummary();
+      buildWheel();
+    }
+
+    // ---------------- Events ----------------
+    $("goodBtn").addEventListener("click", () => { state.fico = "good"; rebuildAll(); });
+    $("lowBtn").addEventListener("click", () => { state.fico = "low"; rebuildAll(); });
+
+    $("kw").addEventListener("input", () => { state.kw = $("kw").value; rebuildAll(); });
+
+    $("battery").addEventListener("change", () => {
+      state.battery = $("battery").value;
+      if(state.battery !== "yes") state.bqty = 0;
+      rebuildAll();
+    });
+    $("bqty").addEventListener("change", () => { state.bqty = Number($("bqty").value); rebuildAll(); });
+    $("cap").addEventListener("change", () => { state.cap = Number($("cap").value); rebuildAll(); });
+
+    // Roof
+    $("roof").addEventListener("change", () => {
+      state.roof = $("roof").value;
+      if(state.roof !== "yes") state.roofSq = "";
+      rebuildAll();
+    });
+    $("roofSq").addEventListener("input", () => { state.roofSq = $("roofSq").value; rebuildAll(); });
+
+    // Wheel scroll highlight
+    wheelEl.addEventListener("scroll", () => { window.requestAnimationFrame(setActiveByScroll); }, {passive:true});
+
+    // Buttons
+    $("copyBtn").addEventListener("click", copyTargets);
+    $("resetBtn").addEventListener("click", () => { localStorage.removeItem(KEY); location.reload(); });
+
+    // Settings
+    $("accent").addEventListener("input", () => { state.accent = $("accent").value; rebuildAll(); });
+    $("fontSize").addEventListener("change", () => { state.fontSize = Number($("fontSize").value); rebuildAll(); });
+    $("fontFamily").addEventListener("change", () => { state.fontFamily = $("fontFamily").value; rebuildAll(); });
+
+    $("commissionPct").addEventListener("input", () => {
+      const v = cleanNumber($("commissionPct").value);
+      state.commissionPct = clamp(v, 0, 100);
+      rebuildAll();
+    });
+
+    $("costBase").addEventListener("input", () => {
+      const v = cleanNumber($("costBase").value);
+      state.baseCost = v > 0 ? v : 3.00;
+      rebuildAll();
+    });
+
+    $("roofRate").addEventListener("input", () => {
+      const v = cleanNumber($("roofRate").value);
+      state.roofRate = v > 0 ? v : 10;
+      rebuildAll();
+    });
+
+    $("rangeMin").addEventListener("input", () => {
+      state.rangeMin = Math.max(0, Math.floor(cleanNumber($("rangeMin").value)));
+      rebuildAll();
+    });
+    $("rangeMax").addEventListener("input", () => {
+      state.rangeMax = Math.max(state.rangeMin, Math.floor(cleanNumber($("rangeMax").value)));
+      rebuildAll();
+    });
+    $("step").addEventListener("input", () => {
+      state.step = Math.max(100, Math.floor(cleanNumber($("step").value)));
+      rebuildAll();
+    });
+
+    $("resetThemeBtn").addEventListener("click", () => {
+      state.accent = "#16a34a";
+      state.fontSize = 18;
+      state.fontFamily = "system";
+      state.baseCost = 3.00;
+      state.commissionPct = 100;
+      state.roofRate = 10;
+      state.rangeMin = 2000;
+      state.rangeMax = 30000;
+      state.step = 500;
+      rebuildAll();
+    });
+
+    // ---------------- Init ----------------
+    load();
+    // Guards
+    state.lowFicoAdder = 0.30;
+    state.baseCost = (state.baseCost && Number(state.baseCost)) ? Number(state.baseCost) : 3.00;
+    state.commissionPct = (state.commissionPct !== undefined) ? Number(state.commissionPct) : 100;
+    state.cap = state.cap ? Number(state.cap) : 11;
+    state.roofRate = state.roofRate ? Number(state.roofRate) : 10;
+
+    rebuildAll();
+  </script>
+</body>
+</html>
